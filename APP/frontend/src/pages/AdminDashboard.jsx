@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { Users, Search, FileText, Shield, UserCheck, UserX, ChevronDown, BarChart2, UserPlus, X } from 'lucide-react'
+import { Users, Search, FileText, Shield, UserCheck, UserX, ChevronDown, BarChart2, UserPlus, X, KeyRound, AlertTriangle } from 'lucide-react'
 
 const LEVELS = ['intern', 'resident', 'senior', 'professor']
 const LEVEL_LABELS = { intern: 'Intern', resident: 'Resident', senior: 'Senior', professor: 'Professor' }
@@ -24,6 +24,11 @@ export default function AdminDashboard() {
   const [createForm, setCreateForm] = useState({ name: '', email: '', password: '', level: 'intern', hospital: '' })
   const [createError, setCreateError] = useState('')
   const [createLoading, setCreateLoading] = useState(false)
+  const [resetTarget, setResetTarget] = useState(null)
+  const [resetPwd, setResetPwd] = useState('')
+  const [resetLoading, setResetLoading] = useState(false)
+  const [resetError, setResetError] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState(null)
 
   useEffect(() => {
     if (!canManageUsers) { navigate('/'); return }
@@ -51,12 +56,29 @@ export default function AdminDashboard() {
   }
 
   const deleteUser = async (userId) => {
-    if (!confirm('Delete this user?')) return
     const r = await fetch(`http://localhost:8000/api/admin/users/${userId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
     })
-    if (r.ok) setUsers(prev => prev.filter(u => u.id !== userId))
+    if (r.ok) { setUsers(prev => prev.filter(u => u.id !== userId)); setDeleteTarget(null) }
+  }
+
+  const resetPassword = async (e) => {
+    e.preventDefault()
+    setResetError('')
+    if (resetPwd.length < 6) { setResetError('Password must be at least 6 characters'); return }
+    setResetLoading(true)
+    try {
+      const r = await fetch(`http://localhost:8000/api/admin/users/${resetTarget.id}/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ password: resetPwd })
+      })
+      const data = await r.json()
+      if (!r.ok) { setResetError(data.detail || 'Failed'); setResetLoading(false); return }
+      setResetTarget(null); setResetPwd('')
+    } catch { setResetError('Connection error') }
+    setResetLoading(false)
   }
 
   const createUser = async (e) => {
@@ -185,11 +207,18 @@ export default function AdminDashboard() {
                     </button>
                   </td>
                   <td style={{ padding: '12px 16px' }}>
-                    {user?.role === 'admin' && u.id !== user.id && (
-                      <button onClick={() => deleteUser(u.id)} className="btn btn-ghost btn-sm" style={{ color: 'var(--red)', padding: '4px 10px' }}>
-                        <UserX size={14} />
-                      </button>
-                    )}
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {user?.role === 'admin' && (
+                        <button onClick={() => { setResetTarget(u); setResetPwd(''); setResetError('') }} className="btn btn-ghost btn-sm" style={{ color: 'var(--accent)', padding: '4px 10px' }} title="Reset password">
+                          <KeyRound size={14} />
+                        </button>
+                      )}
+                      {user?.role === 'admin' && u.id !== user.id && (
+                        <button onClick={() => setDeleteTarget(u)} className="btn btn-ghost btn-sm" style={{ color: 'var(--red)', padding: '4px 10px' }} title="Delete user">
+                          <UserX size={14} />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </motion.tr>
               ))}
@@ -232,6 +261,56 @@ export default function AdminDashboard() {
                 </button>
               </div>
             </form>
+          </motion.div>
+        </div>
+      )}
+      {/* Reset Password Modal */}
+      {resetTarget && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+            style={{ background: 'var(--surface)', border: '1px solid var(--border2)', borderRadius: 16, padding: 28, width: '100%', maxWidth: 380 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--white)' }}>Reset Password</h3>
+              <button onClick={() => setResetTarget(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)' }}><X size={20} /></button>
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 16 }}>Set a new password for <strong style={{ color: 'var(--white)' }}>{resetTarget.name}</strong></p>
+            <form onSubmit={resetPassword} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <input type="password" required placeholder="New password (min 6 chars)" value={resetPwd}
+                onChange={e => setResetPwd(e.target.value)}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+              />
+              {resetError && <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--red-bg)', color: 'var(--red)', fontSize: 13 }}>{resetError}</div>}
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button type="button" onClick={() => setResetTarget(null)} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center' }}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={resetLoading} style={{ flex: 1, justifyContent: 'center' }}>
+                  {resetLoading ? 'Saving...' : <><KeyRound size={14} /> Reset Password</>}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+            style={{ background: 'var(--surface)', border: '1px solid var(--border2)', borderRadius: 16, padding: 28, width: '100%', maxWidth: 380 }}>
+            <div style={{ display: 'flex', gap: 14, marginBottom: 20 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--red-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <AlertTriangle size={22} color="var(--red)" />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--white)', marginBottom: 4 }}>Delete Account</h3>
+                <p style={{ fontSize: 13, color: 'var(--text2)' }}>Are you sure you want to delete <strong style={{ color: 'var(--white)' }}>{deleteTarget.name}</strong>? This action cannot be undone.</p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setDeleteTarget(null)} className="btn btn-ghost" style={{ flex: 1, justifyContent: 'center' }}>Cancel</button>
+              <button onClick={() => deleteUser(deleteTarget.id)} className="btn btn-primary" style={{ flex: 1, justifyContent: 'center', background: 'var(--red)', borderColor: 'var(--red)' }}>
+                <UserX size={14} /> Delete
+              </button>
+            </div>
           </motion.div>
         </div>
       )}

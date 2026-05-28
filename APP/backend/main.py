@@ -17,7 +17,7 @@ from auth import (
     verify_password, get_current_user, get_current_user_optional,
     require_permission, get_users, save_users, find_user_by_id,
     save_search, get_history, save_case, get_cases,
-    LEVELS, seed_admin
+    LEVELS, seed_admin, reset_password
 )
 
 # ── Messages storage ──
@@ -141,6 +141,18 @@ def admin_create_user(data: dict, current: dict = Depends(require_admin_or_profe
         raise HTTPException(status_code=400, detail=f"Level must be one of {LEVELS}")
     user = create_user(name=name, email=email, password=password, level=level, hospital=hospital)
     return public_user(user)
+
+
+@app.post("/api/admin/users/{user_id}/reset-password")
+def admin_reset_password(user_id: str, data: dict, current: dict = Depends(require_admin_or_professor)):
+    if current["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admin can reset passwords")
+    new_password = data.get("password", "").strip()
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    if not reset_password(user_id, new_password):
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"status": "password reset successfully"}
 
 
 @app.delete("/api/admin/users/{user_id}")

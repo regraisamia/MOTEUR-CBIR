@@ -38,12 +38,18 @@ function SearchEntry({ entry, index }) {
 
       {open && (
         <div style={{ borderTop: '1px solid var(--border)', padding: '14px 18px', background: 'var(--bg2)' }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text3)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Top Results</p>
+          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text3)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>All Results</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {entry.results_summary?.map(r => (
+            {(entry.results || entry.results_summary)?.map(r => (
               <div key={r.rank} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--surface)', borderRadius: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontSize: 12, color: 'var(--text3)' }}>#{r.rank}</span>
+                  {r.image_url && (
+                    <img src={`http://localhost:8000${r.image_url}`} alt={r.image_id}
+                      style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover' }}
+                      onError={e => { e.target.style.display = 'none' }}
+                    />
+                  )}
                   <span style={{ fontSize: 13, color: 'var(--text)' }}>{r.image_id}</span>
                   <span className={`badge ${r.label_name === 'Malignant' ? 'badge-malignant' : 'badge-benign'}`} style={{ fontSize: 11 }}>{r.label_name}</span>
                 </div>

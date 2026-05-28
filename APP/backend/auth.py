@@ -1,18 +1,22 @@
 import json
+import os
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
+from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
+load_dotenv(Path(__file__).parent / ".env")
+
 # ── Config ──
-SECRET_KEY = "dermfinder-secret-key-2024-pfe"
+SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-change-me")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 12
+ACCESS_TOKEN_EXPIRE_HOURS = int(os.getenv("ACCESS_TOKEN_EXPIRE_HOURS", 12))
 
 DATA_DIR = Path(__file__).parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -115,6 +119,7 @@ def save_search(user_id: str, filename: str, db: str, top_k: int, results: list,
         "top_k": top_k,
         "search_time_ms": round(search_time_ms, 1),
         "results_summary": [{"rank": r["rank"], "image_id": r["image_id"], "label_name": r["label_name"], "similarity": round(r["similarity"], 4)} for r in results[:5]],
+        "results": results,
         "timestamp": datetime.now().isoformat(timespec="seconds"),
     }
     history.append(entry)
@@ -185,6 +190,16 @@ def require_permission(permission: str):
             raise HTTPException(status_code=403, detail=f"Your level does not allow: {permission}")
         return user
     return checker
+
+
+def reset_password(user_id: str, new_password: str) -> bool:
+    users = get_users()
+    for u in users:
+        if u["id"] == user_id:
+            u["password"] = hash_password(new_password)
+            save_users(users)
+            return True
+    return False
 
 
 # ── Seed admin on first run ──
