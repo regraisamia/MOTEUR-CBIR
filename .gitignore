@@ -54,25 +54,7 @@ APP/frontend/node_modules/
 APP/frontend/dist/
 APP/frontend/.vite/
 
-# ===== EXCLUDE ROOT SCRIPTS =====
-# Keep only APP/ folder code
-/01_*.py
-/02_*.py
-/03_*.py
-/ablations*.py
-/compress_*.py
-/confusion.py
-/eval_*.py
-/finetune.py
-/hjg*.py
-/save_*.py
-/test_*.py
-/tets-*.py
-/tsne_*.py
-/verify.py
-/viz.ipynb
-/main.py
-/config.py
+# ===== EXCLUDE SENSITIVE / LARGE ROOT FILES =====
 /kaggle*.json
 /kaggle*.ipynb
 /notebook*.ipynb
