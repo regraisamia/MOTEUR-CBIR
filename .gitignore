@@ -1,0 +1,89 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+*.log
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ===== LARGE DATA FILES =====
+# Images
+data/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.zip
+
+# Vectors & Models
+Vectors-C/
+Vectors-ISIC/
+Vectors-ISIC-BALANCED/
+Vectors-ISIC-FULL/
+Vectors-ISIC2019/
+*.npy
+*.pkl
+*.pt
+*.pth
+*.h5
+
+# Backend uploads
+APP/backend/uploads/
+
+# Frontend
+APP/frontend/node_modules/
+APP/frontend/dist/
+APP/frontend/.vite/
+
+# ===== EXCLUDE ROOT SCRIPTS =====
+# Keep only APP/ folder code
+/01_*.py
+/02_*.py
+/03_*.py
+/ablations*.py
+/compress_*.py
+/confusion.py
+/eval_*.py
+/finetune.py
+/hjg*.py
+/save_*.py
+/test_*.py
+/tets-*.py
+/tsne_*.py
+/verify.py
+/viz.ipynb
+/main.py
+/config.py
+/kaggle*.json
+/kaggle*.ipynb
+/notebook*.ipynb
+/optimisation_*.png
+/tsne_*.png
+/confusion_*.png
+/training_*.png
+
+# Old folders
+draft/
+extractors/
+vectors/
+HAM10000.zip
+pfe_extractors.zip
