@@ -25,7 +25,6 @@ export default function Footer() {
           <a href="https://www.isic-archive.com" target="_blank" rel="noopener noreferrer">ISIC Archive</a>
           <NavLink to="/user-guide">User Guide</NavLink>
           <NavLink to="/clinical-guidelines">Clinical Guidelines</NavLink>
-          <NavLink to="/contact">Contact Support</NavLink>
         </div>
       </div>
       <div className="footer-bottom">

@@ -9,7 +9,6 @@ import ResultDetails from './pages/ResultDetails'
 import About from './pages/About'
 import UserGuide from './pages/UserGuide'
 import ClinicalGuidelines from './pages/ClinicalGuidelines'
-import Contact from './pages/Contact'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
@@ -44,7 +43,6 @@ function AppLayout() {
             <Route path="/about" element={<About />} />
             <Route path="/user-guide" element={<UserGuide />} />
             <Route path="/clinical-guidelines" element={<ClinicalGuidelines />} />
-            <Route path="/contact" element={<Contact />} />
             <Route path="/register" element={<Navigate to="/login" replace />} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
