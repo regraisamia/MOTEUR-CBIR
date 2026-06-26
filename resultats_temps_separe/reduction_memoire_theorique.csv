@@ -1,0 +1,5 @@
+Base,Nombre_images,Avant_compression_Mo,Apres_compression_Mo,Avant_compression_Go,Apres_compression_Go,Facteur_reduction
+ISIC 2019,25331,272.11,18.55,0.27,0.02,14.67
+ISIC 2020 complet,33126,355.85,24.26,0.35,0.02,14.67
+Base 100 000 images,100000,1074.22,73.24,1.05,0.07,14.67
+Base 1 000 000 images,1000000,10742.19,732.42,10.49,0.72,14.67

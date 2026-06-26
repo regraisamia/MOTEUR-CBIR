@@ -1,0 +1,2 @@
+Dataset,Nombre_images,Nombre_requetes,Brute_force_ms,HJG_Light_ms,Gain_BF_HJG
+ISIC 2020 complet,33126,30,324.19,54.81,5.91
